@@ -21,7 +21,7 @@ import sys
 import time
 import types
 
-from web3 import Web3, HTTPProvider
+from web3 import Web3, HTTPProvider, WebsocketProvider
 
 from chief_keeper.database import SimpleDatabase
 from chief_keeper.spell import DSSSpell
@@ -39,16 +39,11 @@ class ChiefKeeper:
 
     logger = logging.getLogger('chief-keeper')
 
-    def __init__(self, args: list, **kwargs):
+    def add_arguments(self, parser):
         """Pass in arguements assign necessary variables/objects and instantiate other Classes"""
 
-        parser = argparse.ArgumentParser("chief-keeper")
-
-        parser.add_argument("--rpc-host", type=str, default="localhost",
-                            help="JSON-RPC host (default: `localhost')")
-
-        parser.add_argument("--rpc-port", type=int, default=8545,
-                            help="JSON-RPC port (default: `8545')")
+        parser.add_argument("--rpc-host", type=str, default="http://localhost:8545",
+                            help="JSON-RPC host (default: `http://localhost:8545')")
 
         parser.add_argument("--rpc-timeout", type=int, default=10,
                             help="JSON-RPC timeout (in seconds, default: 10)")
@@ -60,7 +55,7 @@ class ChiefKeeper:
                             help="Ethereum address from which to send transactions; checksummed (e.g. '0x12AebC')")
 
         parser.add_argument("--eth-key", type=str, nargs='*',
-                            help="Ethereum private key(s) to use (e.g. 'key_file=/path/to/keystore.json,pass_file=/path/to/passphrase.txt')")
+                            help="Ethereum private key(s) to use (e.g. 'key_file=/path/to/keystore.json,pass_file=/path/to/passphrase.pass')")
 
         parser.add_argument("--dss-deployment-file", type=str, required=False,
                             help="Json description of all the system addresses (e.g. /Full/Path/To/configFile.json)")
@@ -74,11 +69,16 @@ class ChiefKeeper:
         parser.add_argument("--debug", dest='debug', action='store_true',
                             help="Enable debug output")
 
+    def __init__(self, args: list, **kwargs):
+        parser = argparse.ArgumentParser("chief-keeper")
+        self.add_arguments(parser)
         parser.set_defaults(cageFacilitated=False)
         self.arguments = parser.parse_args(args)
 
-        self.web3 = kwargs['web3'] if 'web3' in kwargs else Web3(HTTPProvider(endpoint_uri=f"https://{self.arguments.rpc_host}:{self.arguments.rpc_port}",
-                                                                              request_kwargs={"timeout": self.arguments.rpc_timeout}))
+        provider = HTTPProvider(endpoint_uri=self.arguments.rpc_host,
+                                request_kwargs={'timeout': self.arguments.rpc_timeout})
+        self.web3: Web3 = kwargs['web3'] if 'web3' in kwargs else Web3(provider)
+
         self.web3.eth.defaultAccount = self.arguments.eth_from
         register_keys(self.web3, self.arguments.eth_key)
         self.our_address = Address(self.arguments.eth_from)
@@ -86,7 +86,7 @@ class ChiefKeeper:
         if self.arguments.dss_deployment_file:
             self.dss = DssDeployment.from_json(web3=self.web3, conf=open(self.arguments.dss_deployment_file, "r").read())
         else:
-            self.dss = DssDeployment.from_network(web3=self.web3, network=self.arguments.network)
+            self.dss = DssDeployment.from_node(web3=self.web3)
 
         self.deployment_block = self.arguments.chief_deployment_block
 
@@ -95,10 +95,8 @@ class ChiefKeeper:
 
         self.confirmations = 0
 
-
         logging.basicConfig(format='%(asctime)-15s %(levelname)-8s %(message)s',
                             level=(logging.DEBUG if self.arguments.debug else logging.INFO))
-
 
     def main(self):
         """ Initialize the lifecycle and enter into the Keeper Lifecycle controller.
@@ -113,7 +111,6 @@ class ChiefKeeper:
             lifecycle.on_startup(self.check_deployment)
             lifecycle.on_block(self.process_block)
 
-
     def check_deployment(self):
         self.logger.info('')
         self.logger.info('Please confirm the deployment details')
@@ -122,7 +119,6 @@ class ChiefKeeper:
         self.logger.info(f'DS-Pause: {self.dss.pause.address}')
         self.logger.info('')
         self.initial_query()
-
 
     def initial_query(self):
         """ Updates a locally stored database with the DS-Chief state since its last update.
@@ -139,7 +135,6 @@ class ChiefKeeper:
 
         self.logger.info(result)
 
-
     def process_block(self):
         """ Callback called on each new block. If too many errors, terminate the keeper.
         This is the entrypoint to the Keeper's monitoring logic
@@ -147,9 +142,8 @@ class ChiefKeeper:
         if self.errors >= self.max_errors:
             self.lifecycle.terminate()
         else:
-            self.check_hat()
-            self.check_eta()
-
+            _check_hat = self.check_hat()
+            _check_eta = self.check_eta() if _check_hat else False
 
     def check_hat(self):
         """ Ensures the Hat is on the proposal (spell, EOA, multisig, etc) with the most approval.
@@ -184,11 +178,15 @@ class ChiefKeeper:
             self.dss.ds_chief.lift(Address(contender)).transact(gas_price=self.gas_price())
             spell = DSSSpell(self.web3, Address(contender))
         else:
+            if int(hat, 16) == 0:
+                self.logger.warning("hat not defined, hat address = 0x0000000000000000000000000000000000000000")
+                return False
             self.logger.info(f'Current hat ({hat}) with Approvals {hatApprovals}')
             spell = DSSSpell(self.web3, Address(hat))
 
         self.check_schedule(spell, yay)
 
+        return True
 
     def check_schedule(self, spell: DSSSpell, yay: str):
         """ Schedules spells that haven't been scheduled nor casted """
@@ -198,7 +196,6 @@ class ChiefKeeper:
             if spell.done() == False and self.database.get_eta_inUnix(spell) == 0:
                 self.logger.info(f'Scheduling spell ({yay})')
                 spell.schedule().transact(gas_price=self.gas_price())
-
 
     def check_eta(self):
         """ Cast spells that meet their schedule.
@@ -230,7 +227,7 @@ class ChiefKeeper:
                     del etas[yay]
 
         self.database.db.update({'upcoming_etas': etas}, doc_ids=[3])
-
+        return True
 
     def gas_price(self):
         """ DefaultGasPrice """
