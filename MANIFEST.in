@@ -1,0 +1,4 @@
+include README.md
+recursive-include chief_keeper/abi *
+recursive-include chief_keeper/database *
+recursive-include addresses *

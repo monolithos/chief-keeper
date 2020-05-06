@@ -12,7 +12,7 @@ setup(
     author_email='',
     description='',
     install_requires=[
-        "-e git+https://install-utils-user:mYmm%x|8KorJbyS3dxf@github.com/captain13128/pymaker.git#egg=pymaker",
-        "tinydb == 3.15.2",
+        "pymaker==1.1.*",
+        "tinydb==3.15.2",
     ]
 )

@@ -142,8 +142,8 @@ class ChiefKeeper:
         if self.errors >= self.max_errors:
             self.lifecycle.terminate()
         else:
-            _check_hat = self.check_hat()
-            _check_eta = self.check_eta() if _check_hat else False
+            self.check_hat()
+            self.check_eta()
 
     def check_hat(self):
         """ Ensures the Hat is on the proposal (spell, EOA, multisig, etc) with the most approval.
@@ -178,9 +178,6 @@ class ChiefKeeper:
             self.dss.ds_chief.lift(Address(contender)).transact(gas_price=self.gas_price())
             spell = DSSSpell(self.web3, Address(contender))
         else:
-            if int(hat, 16) == 0:
-                self.logger.warning("hat not defined, hat address = 0x0000000000000000000000000000000000000000")
-                return False
             self.logger.info(f'Current hat ({hat}) with Approvals {hatApprovals}')
             spell = DSSSpell(self.web3, Address(hat))
 
@@ -227,7 +224,6 @@ class ChiefKeeper:
                     del etas[yay]
 
         self.database.db.update({'upcoming_etas': etas}, doc_ids=[3])
-        return True
 
     def gas_price(self):
         """ DefaultGasPrice """
