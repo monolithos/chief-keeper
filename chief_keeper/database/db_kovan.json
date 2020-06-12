@@ -1,1 +1,13 @@
-{"_default": {"1": {"last_block_checked_for_yays": 18755965}, "2": {"yays": ["0xd2a2B784CF9827Af1D324045E6e2b63b8d31963f", "0x416220769947F6Fd9c21017d37c59D843Fc20843", "0x2Cd4Ee585A3bB254e2d31d90E5AEd45aF1979F0e"]}, "3": {"upcoming_etas": {}}}}
+{
+  "_default": {
+    "1": {
+      "last_block_checked_for_yays": 19032849
+    },
+    "2": {
+      "yays": []
+    },
+    "3": {
+      "upcoming_etas": {}
+    }
+  }
+}

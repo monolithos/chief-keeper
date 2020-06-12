@@ -1,6 +1,6 @@
 from chief_keeper.chief_keeper import ChiefKeeper
 
-RPC_HOST = "https://kovan.infura.io/v3/683836c8b9384898a9f99d483ae389bc"
+RPC_HOST = "https://kovan.infura.io/v3/"
 NETWORK = "kovan"
 
 ETH_FROM = "0xC0CCab7430aEc0C30E76e1dA596263C3bdD82932"
@@ -17,7 +17,7 @@ if __name__ == '__main__':
         '--network', NETWORK,
         '--eth-key', f'key_file={KEY_FILE},pass_file={PASS_FILE}',
         '--dss-deployment-file', ADDRESSES_FILE,
-        '--chief-deployment-block', '17707858',
+        # '--chief-deployment-block', '1',
         # '--debug'
     ]
     ChiefKeeper(flip_args).main()

@@ -18,10 +18,8 @@
 import argparse
 import logging
 import sys
-import time
-import types
 
-from web3 import Web3, HTTPProvider, WebsocketProvider
+from web3 import Web3, HTTPProvider
 
 from chief_keeper.database import SimpleDatabase
 from chief_keeper.spell import DSSSpell
@@ -177,10 +175,11 @@ class ChiefKeeper:
             self.logger.info(f'New hat ({contender}) with Approvals {highestApprovals}')
             self.dss.ds_chief.lift(Address(contender)).transact(gas_price=self.gas_price())
             spell = DSSSpell(self.web3, Address(contender))
-        else:
+        elif hat != "0x0000000000000000000000000000000000000000":
             self.logger.info(f'Current hat ({hat}) with Approvals {hatApprovals}')
             spell = DSSSpell(self.web3, Address(hat))
-
+        else:
+            return True
         self.check_schedule(spell, yay)
 
         return True
