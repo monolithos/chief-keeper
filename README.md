@@ -4,7 +4,7 @@
 [![codecov](https://codecov.io/gh/makerdao/chief-keeper/branch/master/graph/badge.svg)](https://codecov.io/gh/makerdao/chief-keeper)
 
 
-The `chief-keeper` monitors and interacts with [DSChief](https://github.com/dapphub/ds-chief) and DSSSpells, which is the executive voting contract and a type of proposal object of the [Maker Protocol](https://github.com/makerdao/dss).
+The `chief-keeper` monitors and interacts with [DSChief](https://github.com/dapphub/ds-chief) and DSSSpells, which is the executive voting contract and a type of proposal object of the [Lend Protocol](https://github.com/monolithos/dss).
 
 Its purpose is to lift the `hat` in DSChief as well as streamline executive actions.
 
@@ -17,7 +17,7 @@ While in operation, the `chief-keeper`:
 * Executes spells after their `eta` has elapsed in the GSM by calling `DSSSpell.cast()`
 
 ### Review
-The following section assumes familiarity with the [DSChief](https://github.com/dapphub/ds-chief), DSSSpells, and [DSPause](https://github.com/dapphub/ds-pause) (Governance Security Module), as well as the processes within [MakerDAO Governance](https://community-development.makerdao.com/governance).
+The following section assumes familiarity with the [DSChief](https://github.com/dapphub/ds-chief), DSSSpells, and [DSPause](https://github.com/dapphub/ds-pause).
 
 ## Architecture
 ![alt text](operation.jpeg)
@@ -38,9 +38,8 @@ Prerequisites:
 
 In order to clone the project and install required third-party packages please execute:
 ```
-git clone https://github.com/makerdao/chief-keeper.git
+git clone https://github.com/monolithos/chief-keeper.git
 cd chief-keeper
-git submodule update --init --recursive
 ./install.sh
 ```
 If `tinydb` isn't visible/installed through `./install.sh`, simply run `pip3 install tinydb` after the commands above.
@@ -60,6 +59,11 @@ Make a run-chief-keeper.sh to easily spin up the chief-keeper.
 	--eth-from '0xABCAddress' \
 	--eth-key 'key_file=/full/path/to/keystoreFile.json,pass_file=/full/path/to/passphrase/file.txt' \
 	--chief-deployment-block 14374534
+
+or 
+change run.py and
+source venv/bin/activate
+python3 run.py
 ```
 
 
@@ -81,12 +85,12 @@ You can then run all tests with:
 ```
 
 ## Roadmap
-- [ ]  [Dynamic gas pricing strategy](https://github.com/makerdao/market-maker-keeper/blob/master/market_maker_keeper/gas.py)
+- [ ]  [Dynamic gas pricing strategy](https://github.com/monolithos/market-maker-keeper/blob/master/market_maker_keeper/gas.py)
 
 
 ## License
 
-See [COPYING](https://github.com/makerdao/chief-keeper/blob/master/COPYING) file.
+See [COPYING](https://github.com/monolithos/chief-keeper/blob/master/COPYING) file.
 
 ### Disclaimer
 

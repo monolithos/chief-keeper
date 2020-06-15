@@ -1,17 +1,30 @@
 from chief_keeper.chief_keeper import ChiefKeeper
 
-RPC_HOST = "https://kovan.infura.io/v3/"
-NETWORK = "kovan"
 
-ETH_FROM = "0xC0CCab7430aEc0C30E76e1dA596263C3bdD82932"
-KEY_FILE = "/home/captain/development/dss-deploy-scripts/keystore.json"
-PASS_FILE = "/home/captain/development/dss-deploy-scripts/p.pass"
+# NETWORK = "kovan"
+NETWORK = "mainnet"
 
-ADDRESSES_FILE = "/home/captain/development/makerdao_python/chief-keeper/addresses/kovan-addresses.json"
+
+if NETWORK.lower() == "kovan":
+    RPC_HOST = "https://kovan.infura.io/v3/****"
+    ETH_FROM = "0x000000000000000000000000000"
+    KEY_FILE = "/PATH/TO/KEY/FILE.json"
+    PASS_FILE = "/PATH/TO/PASS/FILE.pass"
+
+    ADDRESSES_FILE = "/PATH/TO/ADDRESSES/FILE.json"
+elif NETWORK.lower() == "mainnet":
+    RPC_HOST = "https://mainnet.infura.io/v3/*******"
+    ETH_FROM = "0x000000000000000000000000000"
+    KEY_FILE = "/PATH/TO/KEY/FILE.json"
+    PASS_FILE = "/PATH/TO/PASS/FILE.pass"
+
+    ADDRESSES_FILE = "/PATH/TO/ADDRESSES/FILE.json"
+else:
+    raise Exception('NOT SUPPORTED NETWORK')
 
 
 if __name__ == '__main__':
-    flip_args = [
+    start_args = [
         '--rpc-host', RPC_HOST,
         '--eth-from', ETH_FROM,
         '--network', NETWORK,
@@ -20,4 +33,4 @@ if __name__ == '__main__':
         # '--chief-deployment-block', '1',
         # '--debug'
     ]
-    ChiefKeeper(flip_args).main()
+    ChiefKeeper(start_args).main()
