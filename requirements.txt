@@ -1,3 +1,8 @@
 # pymaker==1.1.*
 -e git+https://github.com/monolithos/pymaker.git#egg=pymaker
 tinydb==3.15.2
+firebase==3.0.1
+python_jwt==3.2.6
+gcloud==0.18.3
+sseclient==0.0.26
+requests-toolbelt==0.9.1

@@ -1,17 +1,18 @@
 from chief_keeper.chief_keeper import ChiefKeeper
+from chief_keeper.firebase import FBDatabase
+from datetime import datetime
 
-
-# NETWORK = "kovan"
-NETWORK = "mainnet"
+NETWORK = "kovan"
+# NETWORK = "mainnet"
 
 
 if NETWORK.lower() == "kovan":
-    RPC_HOST = "https://kovan.infura.io/v3/****"
-    ETH_FROM = "0x000000000000000000000000000"
+    RPC_HOST = "https://kovan.infura.io/v3/********"
+    ETH_FROM = "00000000000000000000000000000"
     KEY_FILE = "/PATH/TO/KEY/FILE.json"
     PASS_FILE = "/PATH/TO/PASS/FILE.pass"
 
-    ADDRESSES_FILE = "/PATH/TO/ADDRESSES/FILE.json"
+    ADDRESSES_FILE = "/home/ubuntu/dev/kovan-addresses.json"
 elif NETWORK.lower() == "mainnet":
     RPC_HOST = "https://mainnet.infura.io/v3/*******"
     ETH_FROM = "0x000000000000000000000000000"
@@ -34,3 +35,7 @@ if __name__ == '__main__':
         # '--debug'
     ]
     ChiefKeeper(start_args).main()
+    # FBDatabase().getData()
+    # key = FBDatabase().getKey("0xed5357884884Ce2f640505d5BE6BB9EF7Ed4599c")
+    # print(key)
+    

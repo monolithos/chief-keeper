@@ -23,6 +23,7 @@ from web3 import Web3, HTTPProvider
 
 from chief_keeper.database import SimpleDatabase
 from chief_keeper.spell import DSSSpell
+from chief_keeper.firebase import FBDatabase
 
 from pymaker import Address
 from pymaker.util import is_contract_at
@@ -30,7 +31,6 @@ from pymaker.gas import DefaultGasPrice
 from pymaker.keys import register_keys
 from pymaker.lifecycle import Lifecycle
 from pymaker.deployment import DssDeployment
-
 
 class ChiefKeeper:
     """Keeper that lifts the hat and streamlines executive actions"""
@@ -66,7 +66,6 @@ class ChiefKeeper:
 
         parser.add_argument("--debug", dest='debug', action='store_true',
                             help="Enable debug output")
-
     def __init__(self, args: list, **kwargs):
         parser = argparse.ArgumentParser("chief-keeper")
         self.add_arguments(parser)
@@ -169,18 +168,23 @@ class ChiefKeeper:
                 contender = yay
                 highestApprovals = contenderApprovals
 
+        key = FBDatabase().getKey(contender)
         if contender != hat:
             self.logger.info(f'Lifting hat')
             self.logger.info(f'Old hat ({hat}) with Approvals {hatApprovals}')
             self.logger.info(f'New hat ({contender}) with Approvals {highestApprovals}')
+            end_approvals = highestApprovals.__float__()
+            FBDatabase().setValue(key, "end_approvals", end_approvals)
+            
             self.dss.ds_chief.lift(Address(contender)).transact(gas_price=self.gas_price())
             spell = DSSSpell(self.web3, Address(contender))
+            FBDatabase().setValue(key, "end_timestamp", self.database.get_eta_inUnix(spell))
         elif hat != "0x0000000000000000000000000000000000000000":
             self.logger.info(f'Current hat ({hat}) with Approvals {hatApprovals}')
             spell = DSSSpell(self.web3, Address(hat))
         else:
             return True
-        self.check_schedule(spell, yay)
+        self.check_schedule(spell, yay)        
 
         return True
 
