@@ -168,17 +168,18 @@ class ChiefKeeper:
                 contender = yay
                 highestApprovals = contenderApprovals
 
-        key = FBDatabase().getKey(contender)
+        print(self.arguments.network)
+        key = FBDatabase().getKey(self.arguments.network,contender)
         if contender != hat:
             self.logger.info(f'Lifting hat')
             self.logger.info(f'Old hat ({hat}) with Approvals {hatApprovals}')
             self.logger.info(f'New hat ({contender}) with Approvals {highestApprovals}')
             end_approvals = highestApprovals.__float__()
-            FBDatabase().setValue(key, "end_approvals", end_approvals)
+            FBDatabase().setValue(self.arguments.network, key, "end_approvals", end_approvals)
             
             self.dss.ds_chief.lift(Address(contender)).transact(gas_price=self.gas_price())
             spell = DSSSpell(self.web3, Address(contender))
-            FBDatabase().setValue(key, "end_timestamp", self.database.get_eta_inUnix(spell))
+            FBDatabase().setValue(self.arguments.network, key, "end_timestamp", self.database.get_eta_inUnix(spell))
         elif hat != "0x0000000000000000000000000000000000000000":
             self.logger.info(f'Current hat ({hat}) with Approvals {hatApprovals}')
             spell = DSSSpell(self.web3, Address(hat))

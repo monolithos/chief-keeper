@@ -6,10 +6,10 @@ from firebase import Firebase
 from pymaker import Address
 
 config = {
-  "apiKey": "",
-  "authDomain": "",
-  "databaseURL": "",
-  "storageBucket": ""
+  "apiKey": "AIzaSyDbPG-hPEgt745jbWqhi9szepQAHiUbJEQ",
+  "authDomain": "cms-gov-aea3e.firebaseapp.com",
+  "databaseURL": "https://cms-gov-aea3e.firebaseio.com",
+  "storageBucket": "cms-gov-aea3e.appspot.com"
 }
 
 class FBDatabase:
@@ -24,8 +24,10 @@ class FBDatabase:
       print(proposal.key())
       print(proposal.val()['about'])
 
-  def getKey(self, source: Address):
+  def getKey(self, network, source: Address):
     proposals = self.db.child("proposals").get()
+    if network == "mainnet":
+      proposals = self.db.child("proposals_mainnet").get()
     key = ""
     for proposal in proposals.each():
       if (proposal.val()['source'] == source):
@@ -48,6 +50,9 @@ class FBDatabase:
     print("Set Active") 
     self.db.child("proposals").child(key).child("active").set(active)
 
-  def setValue(self, key, field, value):
+  def setValue(self, network, key, field, value):
     # print(key + " " + "Set Value of " + field) 
-    self.db.child("proposals").child(key).child(field).set(value)
+    if network == "kovan":
+      self.db.child("proposals").child(key).child(field).set(value)
+    elif network == "mainnet":
+      self.db.child("proposals_mainnet").child(key).child(field).set(value)
