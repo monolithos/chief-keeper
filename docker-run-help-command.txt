@@ -1,0 +1,43 @@
+message:    The container launches Chief keeper to implement decisions made by voting MonolithosDAO.
+            To keeper, you must set the input parameters.
+            You can see a list of all parameters by running the command:
+            `--help` or `-h` command
+
+required params:
+    -rpc | --rpc-host                   Url of the rpc, ethereum node, which will be used to interact with the blockchain
+                                        EXAPLE: http://192.168.0.5:8545
+
+    -pk  | --address-private-key        Private key ethereum account that will be used to send transactions
+                                        EXAMPLE: 0x0000000000000000000000000000000000000000001
+
+    -a   | --eth-from                   Address ethereum account that will be used to send transactions
+                                        EXAMPLE:0x0000000000000000000000001
+
+    -n   | --network                    Name of the ethereum network where the votes is being held
+                                        POSSIBLE OPTIONS: mainnet, kovan
+                                        DEFAULT: mainnet
+                                        EXAMPLE: kovan
+
+optional params:
+    --rpc-timeout                       JSON-RPC timeout (in seconds)
+                                        DEFAULT: 10
+                                        EXAMPLE: 20
+
+    --from-block                        Starting block from which to find vaults to bite or debt to queue (set to block where MCD was deployed 10310344 )
+                                        DEFAULT: 10310344
+                                        EXAMPLE: 10500000
+
+    --max-errors                        Maximum number of allowed errors before the keeper terminates
+                                        DEFAULT: 100
+                                        EXAMPLE: 200
+
+    --ethgasstation-api-key             ethgasstation (https://data.defipulse.com/dashboard/egs) API key
+                                        EXAMPLE: 24000000000099c65e0000000000fe338fa0000000000940f20000000000
+
+    --fixed-gas-price                   Uses a fixed value (in Gwei) instead of an external API to determine initial gas
+                                        Places an upper bound (in Gwei) on the amount of gas to use for a single TX
+
+    -h | --help                         Print help
+
+Docker image created by the Monolithos team
+github: https://github.com/monolithos/chief-keeper

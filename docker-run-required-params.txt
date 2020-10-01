@@ -1,0 +1,7 @@
+message:        Use `-h | --help` to get a complete list of parameters
+
+error: the following arguments are required:
+    -n   | --network
+    -rpc | --rpc-host
+    -pk  | --address-private-key
+    -a   | --eth-from

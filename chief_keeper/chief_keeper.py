@@ -23,14 +23,15 @@ from web3 import Web3, HTTPProvider
 
 from chief_keeper.database import SimpleDatabase
 from chief_keeper.spell import DSSSpell
-from chief_keeper.firebase import FBDatabase
 
 from pymaker import Address
 from pymaker.util import is_contract_at
-from pymaker.gas import DefaultGasPrice
 from pymaker.keys import register_keys
 from pymaker.lifecycle import Lifecycle
 from pymaker.deployment import DssDeployment
+from pymaker.gas import DefaultGasPrice, FixedGasPrice
+from pygasprice_client import EthGasStation
+
 
 class ChiefKeeper:
     """Keeper that lifts the hat and streamlines executive actions"""
@@ -61,11 +62,17 @@ class ChiefKeeper:
         parser.add_argument("--chief-deployment-block", type=int, required=False, default=0,
                             help=" Block that the Chief from dss-deployment-file was deployed at (e.g. 8836668")
 
+        parser.add_argument('--fixed-gas-price', type=float, default=None,
+                            help="Uses a fixed value (in Gwei) instead of an external API to determine initial gas")
+
+        parser.add_argument("--ethgasstation-api-key", type=str, default=None, help="ethgasstation API key")
+
         parser.add_argument("--max-errors", type=int, default=100,
                             help="Maximum number of allowed errors before the keeper terminates (default: 100)")
 
         parser.add_argument("--debug", dest='debug', action='store_true',
                             help="Enable debug output")
+
     def __init__(self, args: list, **kwargs):
         parser = argparse.ArgumentParser("chief-keeper")
         self.add_arguments(parser)
@@ -91,6 +98,13 @@ class ChiefKeeper:
         self.errors = 0
 
         self.confirmations = 0
+
+        if self.arguments.fixed_gas_price is not None and self.arguments.fixed_gas_price > 0:
+            self.gas_price_strategy = FixedGasPrice(gas_price=self.arguments.fixed_gas_price)
+        elif self.arguments.ethgasstation_api_key is not None:
+            self.gas_price_strategy = EthGasStation(refresh_interval=60, expiry=600, api_key=self.arguments.ethgasstation_api_key)
+        else:
+            self.gas_price_strategy = DefaultGasPrice()
 
         logging.basicConfig(format='%(asctime)-15s %(levelname)-8s %(message)s',
                             level=(logging.DEBUG if self.arguments.debug else logging.INFO))
@@ -168,18 +182,13 @@ class ChiefKeeper:
                 contender = yay
                 highestApprovals = contenderApprovals
 
-        print(self.arguments.network)
-        key = FBDatabase().getKey(self.arguments.network,contender)
         if contender != hat:
             self.logger.info(f'Lifting hat')
             self.logger.info(f'Old hat ({hat}) with Approvals {hatApprovals}')
             self.logger.info(f'New hat ({contender}) with Approvals {highestApprovals}')
-            end_approvals = highestApprovals.__float__()
-            FBDatabase().setValue(self.arguments.network, key, "end_approvals", end_approvals)
-            
+
             self.dss.ds_chief.lift(Address(contender)).transact(gas_price=self.gas_price())
             spell = DSSSpell(self.web3, Address(contender))
-            FBDatabase().setValue(self.arguments.network, key, "end_timestamp", self.database.get_eta_inUnix(spell))
         elif hat != "0x0000000000000000000000000000000000000000":
             self.logger.info(f'Current hat ({hat}) with Approvals {hatApprovals}')
             spell = DSSSpell(self.web3, Address(hat))
@@ -230,8 +239,7 @@ class ChiefKeeper:
         self.database.db.update({'upcoming_etas': etas}, doc_ids=[3])
 
     def gas_price(self):
-        """ DefaultGasPrice """
-        return DefaultGasPrice()
+        return self.gas_price_strategy
 
 
 if __name__ == '__main__':
