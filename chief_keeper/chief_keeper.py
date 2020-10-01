@@ -30,7 +30,6 @@ from pymaker.keys import register_keys
 from pymaker.lifecycle import Lifecycle
 from pymaker.deployment import DssDeployment
 from pymaker.gas import DefaultGasPrice, FixedGasPrice
-from pygasprice_client import EthGasStation
 
 
 class ChiefKeeper:
@@ -65,7 +64,7 @@ class ChiefKeeper:
         parser.add_argument('--fixed-gas-price', type=float, default=None,
                             help="Uses a fixed value (in Gwei) instead of an external API to determine initial gas")
 
-        parser.add_argument("--ethgasstation-api-key", type=str, default=None, help="ethgasstation API key")
+        # parser.add_argument("--ethgasstation-api-key", type=str, default=None, help="ethgasstation API key")
 
         parser.add_argument("--max-errors", type=int, default=100,
                             help="Maximum number of allowed errors before the keeper terminates (default: 100)")
@@ -101,8 +100,6 @@ class ChiefKeeper:
 
         if self.arguments.fixed_gas_price is not None and self.arguments.fixed_gas_price > 0:
             self.gas_price_strategy = FixedGasPrice(gas_price=self.arguments.fixed_gas_price)
-        elif self.arguments.ethgasstation_api_key is not None:
-            self.gas_price_strategy = EthGasStation(refresh_interval=60, expiry=600, api_key=self.arguments.ethgasstation_api_key)
         else:
             self.gas_price_strategy = DefaultGasPrice()
 

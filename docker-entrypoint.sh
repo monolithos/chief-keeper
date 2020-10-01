@@ -31,9 +31,9 @@ while [ "$1" != "" ]; do
         --max-errors )                   shift
                                   export MAX_ERRORS=$1
                                   ;;
-        --ethgasstation-api-key )           shift
-                                  export ETHGASSTATION_API_KEY=$1
-                                  ;;
+#        --ethgasstation-api-key )           shift
+#                                  export ETHGASSTATION_API_KEY=$1
+#                                  ;;
         --fixed-gas-price )              shift
                                   export FIXED_GAS_PRICE=$1
                                   ;;

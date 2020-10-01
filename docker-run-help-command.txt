@@ -31,9 +31,6 @@ optional params:
                                         DEFAULT: 100
                                         EXAMPLE: 200
 
-    --ethgasstation-api-key             ethgasstation (https://data.defipulse.com/dashboard/egs) API key
-                                        EXAMPLE: 24000000000099c65e0000000000fe338fa0000000000940f20000000000
-
     --fixed-gas-price                   Uses a fixed value (in Gwei) instead of an external API to determine initial gas
                                         Places an upper bound (in Gwei) on the amount of gas to use for a single TX
 
