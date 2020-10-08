@@ -3,6 +3,20 @@ message:    The container launches Chief keeper to implement decisions made by v
             You can see a list of all parameters by running the command:
             `--help` or `-h` command
 
+
+For start keeper
+    run:
+        docker run --rm --name 'MyChiefKeeper' monolithos/chief-keeper \
+            --rpc-host http://192.168.0.5:8545 \
+            --address-private-key 0x00KEEPER_ETH_PRIVATE_KEY000000000000000000001 \
+            --eth-from 0x00KEEPER_ETH_ADDRESS001 \
+            --network mainnet
+
+For stop keeper
+    run:
+        docker exec MyChiefKeeper kill -2 $(docker exec MyChiefKeeper pgrep python)
+
+
 required params:
     -rpc | --rpc-host                   Url of the rpc, ethereum node, which will be used to interact with the blockchain
                                         EXAPLE: http://192.168.0.5:8545
@@ -33,6 +47,16 @@ optional params:
 
     --fixed-gas-price                   Uses a fixed value (in Gwei) instead of an external API to determine initial gas
                                         Places an upper bound (in Gwei) on the amount of gas to use for a single TX
+
+    --telegram-bot-token                A token from your telegrams of the bot that will send the logs with errors
+                                        EXAMPLE: 1000000006:AAGwDemoXDemopDemoNIS-F8bDemoXDemo8
+
+    --keeper-name                       Name of your keeper
+                                        EXAMPLE: my_favorite_Keeper
+
+    --telegram-chat-id                  A list of telegram chat id to which logs will be sent by your bot.
+                                        THE LIST OF ADDRESSES IS PASSED AS FOLLOWS: --telegram-chat-id 000000001 --telegram-chat-id -000000001
+                                        EXAPLE: --telegram-chat-id -000000001
 
     -h | --help                         Print help
 

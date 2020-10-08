@@ -23,6 +23,7 @@ from web3 import Web3, HTTPProvider
 
 from chief_keeper.database import SimpleDatabase
 from chief_keeper.spell import DSSSpell
+from chief_keeper.util import setup_logging
 
 from pymaker import Address
 from pymaker.util import is_contract_at
@@ -64,13 +65,17 @@ class ChiefKeeper:
         parser.add_argument('--fixed-gas-price', type=float, default=None,
                             help="Uses a fixed value (in Gwei) instead of an external API to determine initial gas")
 
-        # parser.add_argument("--ethgasstation-api-key", type=str, default=None, help="ethgasstation API key")
-
         parser.add_argument("--max-errors", type=int, default=100,
                             help="Maximum number of allowed errors before the keeper terminates (default: 100)")
 
         parser.add_argument("--debug", dest='debug', action='store_true',
                             help="Enable debug output")
+
+        parser.add_argument("--telegram-log-config-file", type=str, required=False,
+                            help="config file for send logs to telegram chat (e.g. 'telegram_conf.json')", default=None)
+
+        parser.add_argument("--keeper-name", type=str, required=False,
+                            help="market maker keeper name (e.g. 'chief_keeper')", default="chief_keeper")
 
     def __init__(self, args: list, **kwargs):
         parser = argparse.ArgumentParser("chief-keeper")
@@ -103,8 +108,9 @@ class ChiefKeeper:
         else:
             self.gas_price_strategy = DefaultGasPrice()
 
-        logging.basicConfig(format='%(asctime)-15s %(levelname)-8s %(message)s',
-                            level=(logging.DEBUG if self.arguments.debug else logging.INFO))
+        setup_logging(self.arguments)
+        # logging.basicConfig(format='%(asctime)-15s %(levelname)-8s %(message)s',
+        #                     level=(logging.DEBUG if self.arguments.debug else logging.INFO))
 
     def main(self):
         """ Initialize the lifecycle and enter into the Keeper Lifecycle controller.

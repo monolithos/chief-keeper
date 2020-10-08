@@ -2,3 +2,6 @@
 -e git+https://github.com/monolithos/pymaker.git#egg=pymaker
 # -e git+https://github.com/monolithos/pygasprice-client.git#egg=pygasprice_client
 tinydb==3.15.2
+
+
+-e git+https://github.com/captain13128/telegram-log-handler.git#egg=telegram_log_handler

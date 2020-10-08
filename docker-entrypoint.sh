@@ -1,7 +1,6 @@
 #!/bin/bash
 
-our_addresses=()
-deal_for=()
+telegram_chats_id=()
 
 while [ "$1" != "" ]; do
     case $1 in
@@ -37,14 +36,23 @@ while [ "$1" != "" ]; do
         --fixed-gas-price )              shift
                                   export FIXED_GAS_PRICE=$1
                                   ;;
+        --telegram-bot-token )           shift
+                                  export TELEGRAM_BOT_TOKEN=$1
+                                  ;;
+        --keeper-name )                  shift
+                                  export PROJECT_NAME=$1
+                                  ;;
+        --telegram-chat-id )              shift
+                                  telegram_chats_id+=( "$1" )
+                                  ;;
+
         * )                       shift
                                   ;;
     esac
                                   shift
 done
 
-export  MODEL_OUR_ADDRESSES="${our_addresses[*]}"
-export  DEAL_FOR="${deal_for[*]}"
+export  TELEGRAM_CHAT_IDS="${telegram_chats_id[*]}"
 
 if [[ -z $RPC_HOST || \
       -z $ETH_PRIVATE_KEY || \
