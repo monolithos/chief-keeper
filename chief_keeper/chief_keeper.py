@@ -35,7 +35,7 @@ from pymaker.gas import DefaultGasPrice, FixedGasPrice
 
 class ChiefKeeper:
     """Keeper that lifts the hat and streamlines executive actions"""
-
+    GWEI = 1000000000
     logger = logging.getLogger('chief-keeper')
 
     def add_arguments(self, parser):
@@ -104,7 +104,7 @@ class ChiefKeeper:
         self.confirmations = 0
 
         if self.arguments.fixed_gas_price is not None and self.arguments.fixed_gas_price > 0:
-            self.gas_price_strategy = FixedGasPrice(gas_price=self.arguments.fixed_gas_price)
+            self.gas_price_strategy = FixedGasPrice(gas_price=int(round(self.arguments.fixed_gas_price * self.GWEI)))
         else:
             self.gas_price_strategy = DefaultGasPrice()
 
